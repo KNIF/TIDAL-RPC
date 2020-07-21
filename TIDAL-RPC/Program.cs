@@ -7,27 +7,17 @@ namespace TIDAL_RPC
 {
     public class Program
     {
-        private static DiscordRpc.RichPresence presence = new DiscordRpc.RichPresence();
-        private static string oldSongData = "";
-
         public static void Main(string[] args)
         {
             Console.Title = "TIDAL-RPC (github.com/KNIF/TIDAL-RPC)";
 
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine(@"---------------------------------------------------------");
-            Console.WriteLine(@"|  _____ ___ ____    _    _          ____  ____   ____  |");
-            Console.WriteLine(@"| |_   _|_ _|  _ \  / \  | |        |  _ \|  _ \ / ___| |");
-            Console.WriteLine(@"|   | |  | || | | |/ _ \ | |   _____| |_) | |_) | |     |");
-            Console.WriteLine(@"|   | |  | || |_| / ___ \| |__|_____|  _ <|  __/| |___  |");
-            Console.WriteLine(@"|   |_| |___|____/_/   \_\_____|    |_| \_\_|    \____| |");
-            Console.WriteLine(@"|                                                       |");
-            Console.WriteLine(@"---------------------------------------------------------");
-            Console.ForegroundColor = ConsoleColor.White;
+            PrintTitle();
 
             try
             {
+                var presence = new DiscordRpc.RichPresence();
                 var handlers = new DiscordRpc.EventHandlers();
+
                 DiscordRpc.Initialize("735159392554713099", ref handlers, true, null);
 
                 presence.largeImageKey = "tidal";
@@ -35,15 +25,51 @@ namespace TIDAL_RPC
 
                 Process.Start(Environment.ExpandEnvironmentVariables(@"C:\Users\%username%\AppData\Local\TIDAL\TIDAL.exe"));
 
-                Console.WriteLine("Starting TIDAL...\n");
+                Console.WriteLine("Starting TIDAL...");
 
-                var timer = new Timer();
-                timer.Elapsed += (sender, args2) => Update();
-                timer.AutoReset = true;
-                timer.Interval = 1000;
+                PrintLine();
+
+                var oldSongData = "";
+                var timer = new Timer { AutoReset = true, Interval = 1000 };
+
+                timer.Elapsed += (sender, args2) =>
+                {
+                    Process[] tidalProc = Process.GetProcessesByName("TIDAL").Where(p => p.MainWindowTitle != "").ToArray();
+
+                    if (tidalProc == null || tidalProc.Length < 1)
+                    {
+                        presence.details = "Offline";
+                        presence.state = "";
+                    }
+                    else if (tidalProc[0].MainWindowTitle == "TIDAL")
+                    {
+                        presence.details = "Idling";
+                        presence.state = "";
+                    }
+                    else
+                    {
+                        string[] songData = tidalProc[0].MainWindowTitle.Split('-');
+
+                        string songName = songData[0].Remove(songData[0].Length - 1);
+                        string songArtist = songData[1].Substring(1);
+
+                        if (oldSongData != tidalProc[0].MainWindowTitle)
+                            Console.WriteLine($"Playing \"{songName}\" by {songArtist}.");
+
+                        oldSongData = tidalProc[0].MainWindowTitle;
+
+                        presence.details = songName;
+                        presence.state = songArtist;
+                    }
+
+                    DiscordRpc.UpdatePresence(ref presence);
+                };
+
                 timer.Start();
 
-                Console.WriteLine("Rich Presence started. Press any key to close.\n");
+                Console.WriteLine("Rich Presence started. Press any key to close.");
+
+                PrintLine();
 
                 if (Console.ReadKey() != null)
                 {
@@ -58,37 +84,25 @@ namespace TIDAL_RPC
             }
         }
 
-        private static void Update()
+        private static void PrintLine()
         {
-            Process[] tidalProc = Process.GetProcessesByName("TIDAL").Where(p => p.MainWindowTitle != "").ToArray();
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine(@"---------------------------------------------------------");
+            Console.ForegroundColor = ConsoleColor.White;
+        }
 
-            if (tidalProc == null || tidalProc.Length < 1)
-            {
-                presence.details = "Offline";
-                presence.state = "";
-            }
-            else if (tidalProc[0].MainWindowTitle == "TIDAL")
-            {
-                presence.details = "Idling";
-                presence.state = "";
-            }
-            else
-            {
-                string[] songData = tidalProc[0].MainWindowTitle.Split('-');
-
-                string songName = songData[0].Remove(songData[0].Length - 1);
-                string songArtist = songData[1].Substring(1);
-
-                if (oldSongData != tidalProc[0].MainWindowTitle)
-                    Console.WriteLine($"Playing \"{songName}\" by {songArtist}.");
-
-                oldSongData = tidalProc[0].MainWindowTitle;
-
-                presence.details = songName;
-                presence.state = songArtist;
-            }
-
-            DiscordRpc.UpdatePresence(ref presence);
+        private static void PrintTitle()
+        {
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine(@"---------------------------------------------------------");
+            Console.WriteLine(@"|  _____ ___ ____    _    _          ____  ____   ____  |");
+            Console.WriteLine(@"| |_   _|_ _|  _ \  / \  | |        |  _ \|  _ \ / ___| |");
+            Console.WriteLine(@"|   | |  | || | | |/ _ \ | |   _____| |_) | |_) | |     |");
+            Console.WriteLine(@"|   | |  | || |_| / ___ \| |__|_____|  _ <|  __/| |___  |");
+            Console.WriteLine(@"|   |_| |___|____/_/   \_\_____|    |_| \_\_|    \____| |");
+            Console.WriteLine(@"|                                                       |");
+            Console.WriteLine(@"---------------------------------------------------------");
+            Console.ForegroundColor = ConsoleColor.White;
         }
     }
 }
