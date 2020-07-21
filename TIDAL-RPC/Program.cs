@@ -30,7 +30,7 @@ namespace TIDAL_RPC
                 timer.AutoReset = true;
                 timer.Interval = 1000;
                 timer.Start();
-                
+
                 Console.WriteLine("\nRich Presence started. Press any key to close.");
 
                 if (Console.ReadKey() != null)
@@ -55,26 +55,23 @@ namespace TIDAL_RPC
                 presence.details = "Offline";
                 presence.state = "";
             }
+            else if (tidalProc[0].MainWindowTitle == "TIDAL")
+            {
+                presence.details = "Idling";
+                presence.state = "";
+            }
             else
             {
-                if (tidalProc[0].MainWindowTitle == "TIDAL")
-                {
-                    presence.details = "Idling";
-                    presence.state = "";
-                }
-                else
-                {
-                    string[] songData = tidalProc[0].MainWindowTitle.Split('-');
+                string[] songData = tidalProc[0].MainWindowTitle.Split('-');
 
-                    string songName = songData[0];
-                    songName = songName.Remove(songName.Length - 1);
+                string songName = songData[0];
+                songName = songName.Remove(songName.Length - 1);
 
-                    string songArtist = songData[1];
-                    songArtist = songArtist.Substring(1);
+                string songArtist = songData[1];
+                songArtist = songArtist.Substring(1);
 
-                    presence.details = songName;
-                    presence.state = songArtist;
-                }
+                presence.details = songName;
+                presence.state = songArtist;
             }
 
             presence.largeImageKey = "tidal";
