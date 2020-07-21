@@ -1,12 +1,17 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Timers;
+using System.Diagnostics;
 
 namespace TIDAL_RPC
 {
     public class Program
     {
+        private static DiscordRpc.RichPresence presence = new DiscordRpc.RichPresence();
+        private static DiscordRpc.EventHandlers handlers = new DiscordRpc.EventHandlers();
+
+        private static Timer timer = new Timer();
+
         public static void Main(string[] args)
         {
             Console.Title = "TIDAL-RPC (github.com/KNIF/TIDAL-RPC)";
@@ -19,20 +24,20 @@ namespace TIDAL_RPC
 
             try
             {
-                DiscordRpc.RichPresence presence = new DiscordRpc.RichPresence();
-                DiscordRpc.EventHandlers handlers = new DiscordRpc.EventHandlers();
-
                 DiscordRpc.Initialize("735159392554713099", ref handlers, true, null);
 
-                var timer = SetInterval(() => Update(ref presence), 1000);
+                timer.Elapsed += (sender, args2) => Update(ref presence);
+                timer.AutoReset = true;
+                timer.Interval = 1000;
                 timer.Start();
+                
+                Console.WriteLine("\nRich Presence started. Press any key to close.");
 
-                Console.WriteLine("\nRPC started.");
-
-                if (Console.ReadKey().Key == ConsoleKey.Escape)
+                if (Console.ReadKey() != null)
                 {
                     timer.Stop();
                     DiscordRpc.Shutdown();
+                    Environment.Exit(0);
                 }
             }
             catch (Exception ex)
@@ -76,17 +81,6 @@ namespace TIDAL_RPC
             presence.largeImageText = "TIDAL";
 
             DiscordRpc.UpdatePresence(ref presence);
-        }
-
-        private static Timer SetInterval(Action Act, int Interval)
-        {
-            Timer tmr = new Timer();
-            tmr.Elapsed += (sender, args) => Act();
-            tmr.AutoReset = true;
-            tmr.Interval = Interval;
-            tmr.Start();
-
-            return tmr;
         }
     }
 }
