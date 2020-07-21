@@ -9,6 +9,14 @@ namespace TIDAL_RPC
     {
         public static void Main(string[] args)
         {
+            Console.Title = "TIDAL-RPC (github.com/KNIF/TIDAL-RPC)";
+
+            Console.WriteLine(@"  _____ ___ ____    _    _          ____  ____   ____ ");
+            Console.WriteLine(@" |_   _|_ _|  _ \  / \  | |        |  _ \|  _ \ / ___|");
+            Console.WriteLine(@"   | |  | || | | |/ _ \ | |   _____| |_) | |_) | |    ");
+            Console.WriteLine(@"   | |  | || |_| / ___ \| |__|_____|  _ <|  __/| |___ ");
+            Console.WriteLine(@"   |_| |___|____/_/   \_\_____|    |_| \_\_|    \____|");
+
             try
             {
                 DiscordRpc.RichPresence presence = new DiscordRpc.RichPresence();
@@ -19,7 +27,7 @@ namespace TIDAL_RPC
                 var timer = SetInterval(() => Update(ref presence), 1000);
                 timer.Start();
 
-                Console.WriteLine("RPC started.");
+                Console.WriteLine("\nRPC started.");
 
                 if (Console.ReadKey().Key == ConsoleKey.Escape)
                 {
