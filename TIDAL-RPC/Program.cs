@@ -8,9 +8,6 @@ namespace TIDAL_RPC
     public class Program
     {
         private static DiscordRpc.RichPresence presence = new DiscordRpc.RichPresence();
-        private static DiscordRpc.EventHandlers handlers = new DiscordRpc.EventHandlers();
-
-        private static Timer timer = new Timer();
 
         public static void Main(string[] args)
         {
@@ -24,9 +21,14 @@ namespace TIDAL_RPC
 
             try
             {
+                var handlers = new DiscordRpc.EventHandlers();
                 DiscordRpc.Initialize("735159392554713099", ref handlers, true, null);
 
-                timer.Elapsed += (sender, args2) => Update(ref presence);
+                presence.largeImageKey = "tidal";
+                presence.largeImageText = "TIDAL";
+
+                var timer = new Timer();
+                timer.Elapsed += (sender, args2) => Update();
                 timer.AutoReset = true;
                 timer.Interval = 1000;
                 timer.Start();
@@ -46,7 +48,7 @@ namespace TIDAL_RPC
             }
         }
 
-        private static void Update(ref DiscordRpc.RichPresence presence)
+        private static void Update()
         {
             Process[] tidalProc = Process.GetProcessesByName("TIDAL").Where(p => p.MainWindowTitle != "").ToArray();
 
@@ -64,18 +66,9 @@ namespace TIDAL_RPC
             {
                 string[] songData = tidalProc[0].MainWindowTitle.Split('-');
 
-                string songName = songData[0];
-                songName = songName.Remove(songName.Length - 1);
-
-                string songArtist = songData[1];
-                songArtist = songArtist.Substring(1);
-
-                presence.details = songName;
-                presence.state = songArtist;
+                presence.details = songData[0].Remove(songData[0].Length - 1);
+                presence.state = songData[1].Substring(1);
             }
-
-            presence.largeImageKey = "tidal";
-            presence.largeImageText = "TIDAL";
 
             DiscordRpc.UpdatePresence(ref presence);
         }
