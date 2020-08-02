@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Timers;
 using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace TIDAL_RPC
 {
@@ -23,11 +24,11 @@ namespace TIDAL_RPC
                 presence.largeImageKey = "tidal";
                 presence.largeImageText = "TIDAL";
 
-                Process.Start(Environment.ExpandEnvironmentVariables(@"C:\Users\%username%\AppData\Local\TIDAL\TIDAL.exe"));
-
                 Console.WriteLine("Starting TIDAL...");
 
                 PrintLine();
+
+                Process.Start(Environment.ExpandEnvironmentVariables(@"C:\Users\%username%\AppData\Local\TIDAL\TIDAL.exe"));
 
                 var oldSongData = "";
                 var timer = new Timer { AutoReset = true, Interval = 1000 };
@@ -52,6 +53,15 @@ namespace TIDAL_RPC
 
                         string songName = songData[0].Remove(songData[0].Length - 1);
                         string songArtist = songData[1].Substring(1);
+
+                        foreach (var c in replacedChars)
+                        {
+                            if (songName.Contains(c.Key))
+                                songName = songName.Replace(c.Key, c.Value);
+
+                            if (songArtist.Contains(c.Key))
+                                songArtist = songArtist.Replace(c.Key, c.Value);
+                        }
 
                         if (oldSongData != tidalProc[0].MainWindowTitle)
                             Console.WriteLine($"Playing \"{songName}\" by {songArtist}.");
@@ -104,5 +114,7 @@ namespace TIDAL_RPC
             Console.WriteLine(@"---------------------------------------------------------");
             Console.ForegroundColor = ConsoleColor.White;
         }
+
+        private static readonly Dictionary<string, string> replacedChars = new Dictionary<string, string>() { { "ä", "ae" }, { "ö", "oe" }, { "ü", "ue" } };
     }
 }
