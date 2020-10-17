@@ -28,14 +28,16 @@ namespace TIDAL_RPC
 
                 PrintLine();
 
-                Process.Start(Environment.ExpandEnvironmentVariables(@"C:\Users\%username%\AppData\Local\TIDAL\TIDAL.exe"));
+                Process.Start(
+                    Environment.ExpandEnvironmentVariables(@"C:\Users\%username%\AppData\Local\TIDAL\TIDAL.exe"));
 
                 var oldSongData = "";
-                var timer = new Timer { AutoReset = true, Interval = 1000 };
+                var timer = new Timer {AutoReset = true, Interval = 1000};
 
                 timer.Elapsed += (sender, args2) =>
                 {
-                    Process[] tidalProc = Process.GetProcessesByName("TIDAL").Where(p => p.MainWindowTitle != "").ToArray();
+                    Process[] tidalProc = Process.GetProcessesByName("TIDAL").Where(p => p.MainWindowTitle != "")
+                        .ToArray();
 
                     if (tidalProc == null || tidalProc.Length < 1)
                     {
@@ -115,6 +117,7 @@ namespace TIDAL_RPC
             Console.ForegroundColor = ConsoleColor.White;
         }
 
-        private static readonly Dictionary<string, string> replacedChars = new Dictionary<string, string>() { { "ä", "ae" }, { "ö", "oe" }, { "ü", "ue" } };
+        private static readonly Dictionary<string, string> replacedChars = new Dictionary<string, string>()
+            {{"ä", "ae"}, {"ö", "oe"}, {"ü", "ue"}};
     }
 }
